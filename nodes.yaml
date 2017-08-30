@@ -1,0 +1,43 @@
+
+---
+ssh: &ssh
+  username: root
+  password: vagrant
+synced_folders: &synced_folders
+- host: salt/roots/salt
+  guest: /srv/salt
+
+machines:
+- name: master
+  box: centos67
+  mem: 2048
+  cpus: 1
+  gui: False
+  hostname: master.dev.salt.yewu.js
+  ssh: *ssh
+  private_network:
+    ip: 192.168.56.11
+  shell: |
+    yum install -y salt*
+    yum install -y git vim svn
+    rm -rf /etc/salt/master.d
+    ln -s /salt/etc/master.d /etc/salt/master.d
+    ln -s /salt/etc/extmods /etc/salt/extmods
+    sed -i '/^#default_include:/s;^#;;' /etc/salt/master
+    service salt-master restart
+- name: nginx
+  box: centos67
+  mem: 2048 
+  cpu: 2
+  gui: False
+  hostname: nginx
+  ssh: *ssh
+  synced_folders: *synced_folders
+  private_network:
+    ip: 192.168.56.12
+  shell: |
+    yum install -y salt-minion
+    mkdir -p /etc/salt
+    sed -i 's;^#master:.*;master: 192.168.56.11;' /etc/salt/minion
+    echo "nginx.dev.salt.yewu.js" > /etc/salt/minion_id
+    service salt-minion restart
