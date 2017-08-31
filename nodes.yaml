@@ -15,6 +15,7 @@ machines:
   gui: False
   hostname: master.dev.salt.yewu.js
   ssh: *ssh
+  synced_folders: *synced_folders 
   private_network:
     ip: 192.168.56.11
   shell: |
